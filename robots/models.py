@@ -79,9 +79,19 @@ class Rule(models.Model):
                                       "decrease the maximum crawl rate to "
                                       "your web server."))
 
+    order = models.PositiveIntegerField(_('order'), default=1000)
+
     class Meta:
         verbose_name = _('rule')
         verbose_name_plural = _('rules')
+        ordering = ['order']
+
+    def save(self, *args, **kwargs):
+        if self.robot.strip() == '*':
+            # Special case for Yandex, * must be first
+            self.order = 0
+        super(Rule, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return u("%s") % self.robot

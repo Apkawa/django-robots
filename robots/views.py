@@ -1,3 +1,5 @@
+from urlparse import urlparse
+
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.views.decorators.cache import cache_page
@@ -52,7 +54,14 @@ class RuleList(ListView):
     def get_context_data(self, **kwargs):
         context = super(RuleList, self).get_context_data(**kwargs)
         context['sitemap_urls'] = self.get_sitemap_urls()
-        context['host'] = self.current_site.domain if settings.USE_HOST else None
+        host = None
+        if settings.USE_HOST:
+            p = urlparse(self.current_site.domain)
+            host = p.hostname
+            if self.request.is_secure():
+                # Special case for Yandex
+                host = "https://" + host
+        context['host'] = host
         return context
 
     def render_to_response(self, context, **kwargs):
