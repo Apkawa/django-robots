@@ -56,8 +56,11 @@ class RuleList(ListView):
         context['sitemap_urls'] = self.get_sitemap_urls()
         host = None
         if settings.USE_HOST:
-            p = urlparse(self.current_site.domain)
-            host = p.hostname
+            host = self.current_site.domain
+            if host:
+                if '//' in host:
+                    p = urlparse(self.current_site.domain)
+                    host = p.hostname
             if self.request.is_secure():
                 # Special case for Yandex
                 host = "https://" + host
